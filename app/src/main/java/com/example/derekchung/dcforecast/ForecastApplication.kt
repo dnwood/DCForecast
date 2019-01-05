@@ -1,12 +1,15 @@
 package com.example.derekchung.dcforecast
 
 import android.app.Application
+import android.preference.PreferenceManager
 import com.example.derekchung.dcforecast.data.db.ForecastDatabase
 import com.example.derekchung.dcforecast.data.network.ApixuWeatherApiService
 import com.example.derekchung.dcforecast.data.network.ConnectivityInterceptor
 import com.example.derekchung.dcforecast.data.network.ConnectivityInterceptorImpl
 import com.example.derekchung.dcforecast.data.network.WeatherNetworkDataSource
 import com.example.derekchung.dcforecast.data.network.WeatherNetworkDataSourceImpl
+import com.example.derekchung.dcforecast.data.provider.UnitProvider
+import com.example.derekchung.dcforecast.data.provider.UnitProviderImpl
 import com.example.derekchung.dcforecast.data.repository.ForecastRepository
 import com.example.derekchung.dcforecast.data.repository.ForecastRepositoryImpl
 import com.example.derekchung.dcforecast.ui.weather.current.CurrentWeatherViewModelFactory
@@ -29,11 +32,13 @@ class ForecastApplication : Application(), KodeinAware {
     bind() from singleton { ApixuWeatherApiService(instance()) }
     bind<WeatherNetworkDataSource>() with singleton { WeatherNetworkDataSourceImpl(instance()) }
     bind<ForecastRepository>() with singleton { ForecastRepositoryImpl(instance(), instance()) }
-    bind() from provider { CurrentWeatherViewModelFactory(instance()) }
+    bind<UnitProvider>() with singleton { UnitProviderImpl(instance()) }
+    bind() from provider { CurrentWeatherViewModelFactory(instance(), instance()) }
   }
 
   override fun onCreate() {
     super.onCreate()
     AndroidThreeTen.init(this)
+    PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
   }
 }
